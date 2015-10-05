@@ -9,6 +9,7 @@ namespace BigT
     {
         private const string path = "";
         private const string identifier = "*.cs";
+        private const string outputFile = "translations.csv";
 
         //Regex pattern parts
         private const string functionSeparator = @"[\s,\(\{]";
@@ -23,11 +24,8 @@ namespace BigT
         public static void RunParsing()
         {
             var currentPath = Directory.GetCurrentDirectory();
-            var translations = ReadStrings(currentPath + path, identifier, pattern);
-            foreach (var entry in translations)
-            {
-                Console.WriteLine(entry);
-            }
+            var translations = ReadStrings(Path.Combine(currentPath, path), identifier, pattern);
+            WriteTranslations(translations, Path.Combine(currentPath, outputFile));
         }
 
         private static List<String> ReadStrings(string filePath, string fileIdentifier, string matchPattern)
@@ -54,6 +52,21 @@ namespace BigT
             }
 
             return translations;
+        }
+
+        private static void WriteTranslations(List<String> translations, string path)
+        {
+            using (StreamWriter file = new StreamWriter(path))
+            {
+                foreach (string single in translations)
+                {
+                    var output = single;
+                    if (output.Contains(",") || output.Contains("\"") || output.Contains("\n"))
+                        output = '"' + output.Replace("\"", "\"\"") + '"';
+
+                    file.WriteLine(output);
+                }
+            }
         }
     }
 }

@@ -6,5 +6,11 @@
         {
             return parameter;
         }
+
+        public static void AnotherDummyFunction()
+        {
+            T("This should match");
+            T("AND this should match too");
+        }
     }
 }

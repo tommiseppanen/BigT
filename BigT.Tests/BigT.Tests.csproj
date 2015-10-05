@@ -50,17 +50,22 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Big.cs" />
     <Compile Include="Data\DummyClass1.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Data\DummyBig.cs" />
+    <Compile Include="Data\DummyBig.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BigT\BigT.csproj">
+    <ProjectReference Include="..\BigT.Parser\BigT.Parser.csproj">
       <Project>{cb54da4e-2ae3-43fa-a4f5-584914c2faf9}</Project>
+      <Name>BigT.Parser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BigT\BigT.csproj">
+      <Project>{e0f7e5b5-c1a8-402b-8f48-7d90c8c01611}</Project>
       <Name>BigT</Name>
     </ProjectReference>
   </ItemGroup>

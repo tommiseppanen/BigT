@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BigT;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BigT.Tests
 {
@@ -8,9 +6,15 @@ namespace BigT.Tests
     public class UnitTest1
     {
         [TestMethod]
-        public void TestMethod1()
+        public void TestParsing()
         {
             Parser.RunParsing();
+        }
+
+        [TestMethod]
+        public void TestTranslationLoading()
+        {
+            Big.LoadTranslations(@"translations.csv");
         }
     }
 }
