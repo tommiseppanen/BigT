@@ -58,6 +58,7 @@ namespace BigT
         {
             using (StreamWriter file = new StreamWriter(path))
             {
+                file.WriteLine("Default");
                 foreach (string single in translations)
                 {
                     var output = single;
