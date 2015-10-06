@@ -5,7 +5,7 @@ using static BigT.Big;
 namespace BigT.Tests
 {
     [TestClass]
-    public class UnitTest1
+    public class TranslationTests
     {
         private const string path = "test1.csv";
         [ClassInitialize()]
@@ -27,12 +27,6 @@ namespace BigT.Tests
         public static void Cleanup()
         {
             File.Delete(path);
-        }
-
-        [TestMethod]
-        public void TestParsing()
-        {
-            Parser.RunParsing();
         }
 
         [TestMethod]

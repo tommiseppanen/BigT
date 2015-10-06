@@ -24,8 +24,13 @@ namespace BigT
         public static void RunParsing()
         {
             var currentPath = Directory.GetCurrentDirectory();
-            var translations = ReadStrings(Path.Combine(currentPath, path), identifier, pattern);
-            WriteTranslations(translations, Path.Combine(currentPath, outputFile));
+            var filePath = Path.Combine(currentPath, outputFile);
+            if (File.Exists(filePath))
+                Big.LoadTranslations(filePath);
+
+            var translationsFromParsing = ReadStrings(Path.Combine(currentPath, path), identifier, pattern);
+            Big.AddTranslations(translationsFromParsing);
+            Big.SaveTranslations(filePath);            
         }
 
         private static List<String> ReadStrings(string filePath, string fileIdentifier, string matchPattern)
@@ -52,22 +57,6 @@ namespace BigT
             }
 
             return translations;
-        }
-
-        private static void WriteTranslations(List<String> translations, string path)
-        {
-            using (StreamWriter file = new StreamWriter(path))
-            {
-                file.WriteLine("Default");
-                foreach (string single in translations)
-                {
-                    var output = single;
-                    if (output.Contains(",") || output.Contains("\"") || output.Contains("\n"))
-                        output = '"' + output.Replace("\"", "\"\"") + '"';
-
-                    file.WriteLine(output);
-                }
-            }
         }
     }
 }
