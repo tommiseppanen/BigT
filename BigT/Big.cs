@@ -97,13 +97,13 @@ namespace BigT
 
         private static void WriteTranslations(StreamWriter file)
         {
-            foreach (var row in translations)
+            foreach (var translatedString in translations)
             {
-                file.Write(ConvertToCsvSafe(row.Key));
-                foreach (var translations in row.Value)
+                file.Write(ConvertToCsvSafe(translatedString.Key));
+                foreach (var translationPair in translatedString.Value)
                 {
                     file.Write(",");
-                    file.Write(ConvertToCsvSafe(translations.Value));
+                    file.Write(ConvertToCsvSafe(translationPair.Value));
                 }
                 file.WriteLine();
             }
