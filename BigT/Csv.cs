@@ -13,7 +13,7 @@ namespace BigT
                 throw new ArgumentNullException("source");
             var en = source.GetEnumerator();
             en.MoveNext();
-            return Tuple.Create(en.Current, EnumerateTail(en));
+            return new Tuple<T,IEnumerable<T>>(en.Current, EnumerateTail(en));
         }
 
         private static IEnumerable<T> EnumerateTail<T>(IEnumerator<T> en)
