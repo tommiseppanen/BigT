@@ -7,7 +7,6 @@ namespace BigT
 {
     public class Parser
     {
-        private const string path = "";
         private const string identifier = "*.cs";
         private const string outputFile = "translations.csv";
 
@@ -21,39 +20,61 @@ namespace BigT
             + optionalWhitespace + @"\(" + optionalWhitespace 
             + captureGroup + optionalWhitespace + @"\)";
 
-        public static void RunParsing()
+        public static void RunParsing(string startDirectory = null, string outputPath = null)
         {
-            var currentPath = Directory.GetCurrentDirectory();
-            var filePath = Path.Combine(currentPath, outputFile);
+            var directory = GetDirectory(startDirectory);
+            var filePath = GetFilePath(directory, outputPath);
+
             if (File.Exists(filePath))
                 Big.LoadTranslations(filePath);
 
-            var translationsFromParsing = ReadStrings(Path.Combine(currentPath, path), identifier, pattern);
+            Regex matchPattern = new Regex(pattern, RegexOptions.Singleline);
+            var translationsFromParsing = ReadStringsRecursively(directory, identifier, matchPattern);
             Big.UpdateTranslations(translationsFromParsing);
             Big.SaveTranslations(filePath);            
         }
 
-        private static List<String> ReadStrings(string filePath, string fileIdentifier, string matchPattern)
+        private static string GetDirectory(string startDirectory)
         {
-            
+            if (startDirectory != null)
+                return startDirectory;
+
+            return Directory.GetCurrentDirectory();
+        }
+
+        private static string GetFilePath(string directory, string outputPath)
+        {
+            if (outputPath != null)
+                return outputPath;
+
+            return Path.Combine(directory, outputFile);
+        }
+
+        private static List<String> ReadStringsRecursively(string filePath, string fileIdentifier, Regex matchPattern)
+        {  
             string[] files = Directory.GetFiles(filePath, fileIdentifier);
+            var translations = GetStringsFromFiles(files, matchPattern);
+            var subDirectories = Directory.GetDirectories(filePath);
+            foreach (var directory in subDirectories)
+            {
+                translations.AddRange(ReadStringsRecursively(directory, fileIdentifier, matchPattern));
+            }
+
+            return translations;
+        }
+
+        private static List<String> GetStringsFromFiles(string[] files, Regex matchPattern)
+        {
             var translations = new List<String>();
-            Regex r = new Regex(matchPattern, RegexOptions.Singleline);
             foreach (var file in files)
             {
                 string fileContent = File.ReadAllText(file);
-                Match m = r.Match(fileContent);
+                Match m = matchPattern.Match(fileContent);
                 while (m.Success)
                 {
                     translations.Add(m.Groups[1].ToString());
                     m = m.NextMatch();
-                } 
-            }
-
-            var subDirectories = Directory.GetDirectories(filePath);
-            foreach (var directory in subDirectories)
-            {
-                translations.AddRange(ReadStrings(directory, fileIdentifier, matchPattern));
+                }
             }
 
             return translations;
