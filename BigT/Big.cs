@@ -92,7 +92,6 @@ namespace BigT
 
                 file.Write(ConvertToCsvSafe(languages[i]));
             }
-
             file.WriteLine();
         }
 
@@ -101,13 +100,11 @@ namespace BigT
             foreach (var row in translations)
             {
                 file.Write(ConvertToCsvSafe(row.Key));
-
                 foreach (var translations in row.Value)
                 {
                     file.Write(",");
                     file.Write(ConvertToCsvSafe(translations.Value));
                 }
-
                 file.WriteLine();
             }
         }
@@ -120,13 +117,25 @@ namespace BigT
             return value;
         }
 
-        public static void AddTranslations(IEnumerable<string> items)
+        public static void UpdateTranslations(IEnumerable<string> items)
         {
+            var updatedTranslations = new Dictionary<string, Dictionary<string, string>>();
             foreach (var item in items)
             {
-                if (translations.ContainsKey(item) == false)
-                    translations.Add(item, new Dictionary<string, string>());
+                if (updatedTranslations.ContainsKey(item))
+                    continue;
+
+                updatedTranslations.Add(item, GetTranslationIfAvailable(item));
             }
+            translations = updatedTranslations;
+        }
+
+        private static Dictionary<string, string> GetTranslationIfAvailable(string key)
+        {
+            if (translations.ContainsKey(key))
+                return translations[key];
+
+            return new Dictionary<string, string>();
         }
     }
 }

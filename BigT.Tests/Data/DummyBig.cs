@@ -9,9 +9,12 @@
 
         public static void AnotherDummyFunction()
         {
-            T("This should match");
+            T("This should actually match");
             T("AND this should match too");
             T(@"Special characters "" §½!@#£¤$%&/{([)]=}+?\´`åÅ¨^~*'öÖäÄ,;.:-_<>|");
+            T("");
+            T("short");
+            T(" ");
         }
     }
 }

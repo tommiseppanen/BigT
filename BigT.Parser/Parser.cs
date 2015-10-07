@@ -29,7 +29,7 @@ namespace BigT
                 Big.LoadTranslations(filePath);
 
             var translationsFromParsing = ReadStrings(Path.Combine(currentPath, path), identifier, pattern);
-            Big.AddTranslations(translationsFromParsing);
+            Big.UpdateTranslations(translationsFromParsing);
             Big.SaveTranslations(filePath);            
         }
 
