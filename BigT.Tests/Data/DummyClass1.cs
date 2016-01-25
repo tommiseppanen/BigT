@@ -14,13 +14,18 @@ namespace BigT.Tests.Data
             string normal = T("Normal, should match");
             string full = Big.T(@"Normal, should match");
 
+            string multipart = T("Multiparts should" + " match too");
+
+            string multipartAndMultiline = T("Also multiline" 
+                                        + " multiparts "
+                                        + "might be needed");
+
             var anotherTest = TestFunction(T("Pick me"));
             BigT.Big.T("And me");
             string quoted = Big.T(@"Normal, ""should"" match");
 
             TestFunctionT("Not this one");
             DummyBig.T("Neither this");
-
         }
 
         private string TestFunction(string parameter)

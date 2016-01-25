@@ -14,7 +14,7 @@ namespace BigT
         private const string functionSeparator = @"[\s,\(\{]";
         private const string functionName = @"(?:T|Big\.T|BigT\.Big\.T)";
         private const string optionalWhitespace = @"\s*";
-        private const string captureGroup = @"@?""(.*?)""";
+        private const string captureGroup = @"(@?)""(.*?)""";
 
         private const string pattern = functionSeparator + functionName
             + optionalWhitespace + @"\(" + optionalWhitespace 
@@ -72,7 +72,16 @@ namespace BigT
                 Match m = matchPattern.Match(fileContent);
                 while (m.Success)
                 {
-                    translations.Add(m.Groups[1].ToString());
+                    if (m.Groups[1].Length == 0)
+                    {
+                        var parsed = Regex.Replace(m.Groups[2].ToString(), @""".*?""", "", RegexOptions.Singleline);
+                        translations.Add(parsed);
+                    }
+                    else
+                    {
+                        translations.Add(m.Groups[2].ToString().Replace(@"""""", @""""));
+                    }
+                    
                     m = m.NextMatch();
                 }
             }

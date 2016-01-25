@@ -11,7 +11,7 @@
         {
             T("This should actually match");
             T("AND this should match too");
-            T(@"Special characters "" §½!@#£¤$%&/{([)]=}+?\´`åÅ¨^~*'öÖäÄ,;.:-_<>|");
+            T(@"Special characters ""§½!@#£¤$%&/{([)]=}+?\´`åÅ¨^~*'öÖäÄ,;.:-_<>|");
             T("");
             T("short");
             T(" ");
