@@ -40,10 +40,7 @@ namespace BigT
 
         private static string GetFilePath(string directory, string outputPath)
         {
-            if (outputPath != null)
-                return outputPath;
-
-            return Path.Combine(directory, OutputFile);
+            return outputPath ?? Path.Combine(directory, OutputFile);
         }
 
         private static IEnumerable<string> ReadStringsRecursively(string filePath, string fileIdentifier, Regex matchPattern)

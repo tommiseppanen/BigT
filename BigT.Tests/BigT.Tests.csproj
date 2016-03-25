@@ -63,10 +63,6 @@
     <Compile Include="ParsingTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BigT.Parser\BigT.Parser.csproj">
-      <Project>{cb54da4e-2ae3-43fa-a4f5-584914c2faf9}</Project>
-      <Name>BigT.Parser</Name>
-    </ProjectReference>
     <ProjectReference Include="..\BigT\BigT.csproj">
       <Project>{e0f7e5b5-c1a8-402b-8f48-7d90c8c01611}</Project>
       <Name>BigT</Name>
