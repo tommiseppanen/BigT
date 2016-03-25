@@ -1,5 +1,5 @@
-# BigT (Basic Internalization/Globalization Translations)
-BigT is an easy to use localization library inpired by QT's tr() translation function.
+# BigT
+BigT (Basic internalization/globalization Translations) is an easy to use localization library inpired by QT's tr() translation function.
 
 Translations are stored in a CSV file.
 
