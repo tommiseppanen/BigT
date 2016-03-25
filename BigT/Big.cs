@@ -7,28 +7,27 @@ namespace BigT
 {
     public static class Big
     {
-        private const string defaultLanguageIdentifier = "Default";
+        private const string DefaultLanguageIdentifier = "Default";
 
-        private static List<string> languages = new List<string>() { defaultLanguageIdentifier };
-        private static Dictionary<string, Dictionary<string, string>> translations = new Dictionary<string, Dictionary<string, string>>();
-        private static string activeLanguage = defaultLanguageIdentifier;
+        private static IList<string> _languages = new List<string>() { DefaultLanguageIdentifier };
+        private static Dictionary<string, Dictionary<string, string>> _translations = new Dictionary<string, Dictionary<string, string>>();
+        private static string _activeLanguage = DefaultLanguageIdentifier;
 
         public static string T(string text)
         {
-            return T(text, activeLanguage);
+            return T(text, _activeLanguage);
         }
 
         public static string T(string text, string language)
         {
-            if (translations.ContainsKey(text) && translations[text].ContainsKey(activeLanguage))
-                return translations[text][activeLanguage];
-
+            if (_translations.ContainsKey(text) && _translations[text].ContainsKey(_activeLanguage))
+                return _translations[text][_activeLanguage];
             return text;
         }
 
         public static void SetLanguage(string language)
         {
-            activeLanguage = language;
+            _activeLanguage = language;
         }
 
         public static void LoadTranslations(string path)
@@ -36,17 +35,14 @@ namespace BigT
             using (var stream = File.OpenRead(path))
             using (var reader = new StreamReader(stream))
             {
-                var data = Csv.ParseHeadAndTail(reader, ',', '"');
-
-                if (data.Item1 != null)
-                    languages = data.Item1.ToList();
-
-                translations = MapDefaultValueToTranslations(data.Item2, languages);   
+                var data = Csv.ParseValues(reader, ',', '"');
+                _languages = data.First();   
+                _translations = MapDefaultValueToTranslations(data.Skip(1), _languages);
             }
         }
 
         private static Dictionary<string, Dictionary<string, string>> MapDefaultValueToTranslations(IEnumerable<IList<string>> rows,
-            List<string> languageList)
+            IList<string> languageList)
         {
             var translationDictionary = new Dictionary<string, Dictionary<string, string>>();
             foreach (var translations in rows)
@@ -60,14 +56,13 @@ namespace BigT
             return translationDictionary;
         }
 
-        private static Dictionary<string, string> MapLanguagesToTranslations(List<string> languageList, IList<string> row)
+        private static Dictionary<string, string> MapLanguagesToTranslations(IList<string> languageList, IList<string> row)
         {
             var values = new Dictionary<string, string>();
-            for (int i = 1; i < row.Count; i++)
+            for (var i = 1; i < row.Count; i++)
             {
                 values.Add(languageList.ElementAt(i), row[i]);
             }
-
             return values;
         }
 
@@ -76,28 +71,34 @@ namespace BigT
             if (File.Exists(path))
                 File.Delete(path);
 
-            using (StreamWriter file = new StreamWriter(path))
+            using (var file = new StreamWriter(path))
             {
                 WriteLanguages(file);
                 WriteTranslations(file);
             }
         }
 
-        private static void WriteLanguages(StreamWriter file)
+        private static void WriteLanguages(TextWriter file)
         {
-            for (int i = 0; i < languages.Count; i++)
+            if (file == null)
+                throw new ArgumentNullException(nameof(file));
+
+            for (var i = 0; i < _languages.Count; i++)
             {
                 if (i>0)
                     file.Write(",");
 
-                file.Write(ConvertToCsvSafe(languages[i]));
+                file.Write(ConvertToCsvSafe(_languages[i]));
             }
             file.WriteLine();
         }
 
-        private static void WriteTranslations(StreamWriter file)
+        private static void WriteTranslations(TextWriter file)
         {
-            foreach (var translatedString in translations)
+            if (file == null)
+                throw new ArgumentNullException(nameof(file));
+
+            foreach (var translatedString in _translations)
             {
                 file.Write(ConvertToCsvSafe(translatedString.Key));
                 foreach (var translationPair in translatedString.Value)
@@ -127,15 +128,12 @@ namespace BigT
 
                 updatedTranslations.Add(item, GetTranslationIfAvailable(item));
             }
-            translations = updatedTranslations;
+            _translations = updatedTranslations;
         }
 
         private static Dictionary<string, string> GetTranslationIfAvailable(string key)
         {
-            if (translations.ContainsKey(key))
-                return translations[key];
-
-            return new Dictionary<string, string>();
+            return _translations.ContainsKey(key) ? _translations[key] : new Dictionary<string, string>();
         }
     }
 }

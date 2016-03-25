@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -7,117 +6,124 @@ namespace BigT
 {
     public static class Csv
     {
-        private static Tuple<T, IEnumerable<T>> HeadAndTail<T>(this IEnumerable<T> source)
+        private class CsvReadState
         {
-            if (source == null)
-                throw new ArgumentNullException("source");
-            var en = source.GetEnumerator();
-            en.MoveNext();
-            return new Tuple<T,IEnumerable<T>>(en.Current, EnumerateTail(en));
+            public bool InsideQuote { get; set; }
+            public List<IList<string>> Values { get; }
+            public List<string> CurrentRecord { get; set; }
+            public StringBuilder CurrentField { get; }
+
+            public CsvReadState()
+            {
+                CurrentField = new StringBuilder();
+                CurrentRecord = new List<string>();
+                Values = new List<IList<string>>();
+            }
         }
 
-        private static IEnumerable<T> EnumerateTail<T>(IEnumerator<T> en)
+        public static IList<IList<string>> ParseValues(TextReader reader, char delimiter, char qualifier)
         {
-            while (en.MoveNext()) yield return en.Current;
-        }
-
-        public static IEnumerable<IList<string>> Parse(string content, char delimiter, char qualifier)
-        {
-            using (var reader = new StringReader(content))
-                return Parse(reader, delimiter, qualifier);
-        }
-
-        public static Tuple<IList<string>, IEnumerable<IList<string>>> ParseHeadAndTail(TextReader reader, char delimiter, char qualifier)
-        {
-            return HeadAndTail(Parse(reader, delimiter, qualifier));
-        }
-
-        public static IEnumerable<IList<string>> Parse(TextReader reader, char delimiter, char qualifier)
-        {
-            var inQuote = false;
-            var record = new List<string>();
-            var sb = new StringBuilder();
-
+            var state = new CsvReadState();
             while (reader.Peek() != -1)
             {
                 var readChar = (char)reader.Read();
-
-                if (readChar == '\n' || (readChar == '\r' && (char)reader.Peek() == '\n'))
-                {
-                    // If it's a \r\n combo consume the \n part and throw it away.
-                    if (readChar == '\r')
-                        reader.Read();
-
-                    if (inQuote)
-                    {
-                        if (readChar == '\r')
-                            sb.Append('\r');
-                        sb.Append('\n');
-                    }
-                    else
-                    {
-                        if (record.Count > 0 || sb.Length > 0)
-                        {
-                            record.Add(sb.ToString());
-                            sb.Clear();
-                        }
-
-                        if (record.Count > 0)
-                            yield return record;
-
-                        record = new List<string>(record.Count);
-                    }
-                }
-                else if (sb.Length == 0 && !inQuote)
-                {
-                    if (readChar == qualifier)
-                        inQuote = true;
-                    else if (readChar == delimiter)
-                    {
-                        record.Add(sb.ToString());
-                        sb.Clear();
-                    }
-                    else if (char.IsWhiteSpace(readChar))
-                    {
-                        // Ignore leading whitespace
-                    }
-                    else
-                        sb.Append(readChar);
-                }
+                if (IsLineEnd(readChar, reader))
+                    ProcessLineEnd(readChar, reader, state);
+                else if (IsFieldBeginning(state))
+                    ProcessFieldBeginning(readChar, state, qualifier, delimiter);
                 else if (readChar == delimiter)
-                {
-                    if (inQuote)
-                        sb.Append(delimiter);
-                    else
-                    {
-                        record.Add(sb.ToString());
-                        sb.Clear();
-                    }
-                }
+                    ProcessDelimiter(delimiter, state);
                 else if (readChar == qualifier)
-                {
-                    if (inQuote)
-                    {
-                        if ((char)reader.Peek() == qualifier)
-                        {
-                            reader.Read();
-                            sb.Append(qualifier);
-                        }
-                        else
-                            inQuote = false;
-                    }
-                    else
-                        sb.Append(readChar);
-                }
+                    ProcessQualifier(qualifier, reader, state);
                 else
-                    sb.Append(readChar);
+                    state.CurrentField.Append(readChar);
             }
+            AddCurrentRecordToValues(state);
+            return state.Values;
+        }
 
-            if (record.Count > 0 || sb.Length > 0)
-                record.Add(sb.ToString());
+        private static bool IsLineEnd(char readedCharacter, TextReader reader)
+        {
+            return readedCharacter == '\n' || (readedCharacter == '\r' && (char) reader.Peek() == '\n');
+        }
 
-            if (record.Count > 0)
-                yield return record;
+        private static void ProcessLineEnd(char readedCharacter, TextReader reader, CsvReadState state)
+        {
+            // If it's a \r\n combo consume the \n part and throw it away.
+            if (readedCharacter == '\r')
+                reader.Read();
+            if (state.InsideQuote)
+            {
+                if (readedCharacter == '\r')
+                    state.CurrentField.Append('\r');
+                state.CurrentField.Append('\n');
+            }
+            else
+            {
+                AddCurrentRecordToValues(state);
+                state.CurrentRecord = new List<string>(state.CurrentRecord.Count);
+            }
+        }
+
+        private static void AddCurrentRecordToValues(CsvReadState state)
+        {
+            if (state.CurrentRecord.Count > 0 || state.CurrentField.Length > 0)
+                AddCurŕentFieldToRecord(state);
+            if (state.CurrentRecord.Count > 0)
+                state.Values.Add(state.CurrentRecord);
+        }
+
+        private static void AddCurŕentFieldToRecord(CsvReadState state)
+        {
+            state.CurrentRecord.Add(state.CurrentField.ToString());
+            state.CurrentField.Clear();
+        }
+
+        private static bool IsFieldBeginning(CsvReadState state)
+        {
+            return state.CurrentField.Length == 0 && !state.InsideQuote;
+        }
+
+        private static void ProcessFieldBeginning(char readedCharacter, CsvReadState state, char qualifier, char delimiter)
+        {
+            if (readedCharacter == qualifier)
+                state.InsideQuote = true;
+            else if (readedCharacter == delimiter)
+                AddCurŕentFieldToRecord(state);
+            else if (!char.IsWhiteSpace(readedCharacter)) //Leading whitespace is skipped
+                state.CurrentField.Append(readedCharacter);
+        }
+
+        private static void ProcessDelimiter(char delimiter, CsvReadState state)
+        {
+            if (state.InsideQuote)
+                state.CurrentField.Append(delimiter);
+            else
+                AddCurŕentFieldToRecord(state);
+        }
+
+        private static void ProcessQualifier(char qualifier, TextReader reader, CsvReadState state)
+        {
+            if (state.InsideQuote)
+            {
+                if (IsReaderInEscapedQualifier(reader, qualifier))
+                    ProcessEscapedQualifier(reader, state, qualifier);
+                else
+                    state.InsideQuote = false;
+            }
+            else
+                state.CurrentField.Append(qualifier);
+        }
+
+        private static bool IsReaderInEscapedQualifier(TextReader reader, char qualifier)
+        {
+            return (char) reader.Peek() == qualifier;
+        }
+
+        private static void ProcessEscapedQualifier(TextReader reader, CsvReadState state, char qualifier)
+        {
+            reader.Read();
+            state.CurrentField.Append(qualifier);
         }
     }
 }

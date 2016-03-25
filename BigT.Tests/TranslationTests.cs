@@ -7,12 +7,12 @@ namespace BigT.Tests
     [TestClass]
     public class TranslationTests
     {
-        private const string path = "test1.csv";
+        private const string Path = "test1.csv";
         [ClassInitialize()]
         public static void Initialize(TestContext context)
         {
             
-            using (StreamWriter file = new StreamWriter(path))
+            using (var file = new StreamWriter(Path))
             {
                 file.WriteLine("Default,Finnish,Swedish");
                 file.WriteLine("One,Yksi,Ett");
@@ -20,13 +20,13 @@ namespace BigT.Tests
                 file.WriteLine("Three,Kolme,Tre");
             }
 
-            LoadTranslations(path);
+            LoadTranslations(Path);
         }
 
         [ClassCleanup()]
         public static void Cleanup()
         {
-            File.Delete(path);
+            File.Delete(Path);
         }
 
         [TestMethod]

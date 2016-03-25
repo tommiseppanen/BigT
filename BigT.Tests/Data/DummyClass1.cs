@@ -2,7 +2,7 @@
 
 namespace BigT.Tests.Data
 {
-    class DummyClass1
+    internal class DummyClass1
     {
         public void DummyFunction()
         {
@@ -12,28 +12,28 @@ namespace BigT.Tests.Data
                             which should match");
 
             string normal = T("Normal, should match");
-            string full = Big.T(@"Normal, should match");
+            var full = Big.T(@"Normal, should match");
 
-            string multipart = T("Multiparts should" + " match too");
+            var multipart = T("Multiparts should" + " match too");
 
-            string multipartAndMultiline = T("Also multiline" 
+            var multipartAndMultiline = T("Also multiline" 
                                         + " multiparts "
                                         + "might be needed");
 
             var anotherTest = TestFunction(T("Pick me"));
             BigT.Big.T("And me");
-            string quoted = Big.T(@"Normal, ""should"" match");
+            var quoted = Big.T(@"Normal, ""should"" match");
 
             TestFunctionT("Not this one");
             DummyBig.T("Neither this");
         }
 
-        private string TestFunction(string parameter)
+        private static string TestFunction(string parameter)
         {
             return parameter;
         }
 
-        private string TestFunctionT(string parameter)
+        private static string TestFunctionT(string parameter)
         {
             return parameter;
         }

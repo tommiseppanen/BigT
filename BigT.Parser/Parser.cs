@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -7,18 +6,18 @@ namespace BigT
 {
     public class Parser
     {
-        private const string identifier = "*.cs";
-        private const string outputFile = "translations.csv";
+        private const string Identifier = "*.cs";
+        private const string OutputFile = "translations.csv";
 
         //Regex pattern parts
-        private const string functionSeparator = @"[\s,\(\{]";
-        private const string functionName = @"(?:T|Big\.T|BigT\.Big\.T)";
-        private const string optionalWhitespace = @"\s*";
-        private const string captureGroup = @"(@?)""(.*?)""";
+        private const string FunctionSeparator = @"[\s,\(\{]";
+        private const string FunctionName = @"(?:T|Big\.T|BigT\.Big\.T)";
+        private const string OptionalWhitespace = @"\s*";
+        private const string CaptureGroup = @"(@?)""(.*?)""";
 
-        private const string pattern = functionSeparator + functionName
-            + optionalWhitespace + @"\(" + optionalWhitespace 
-            + captureGroup + optionalWhitespace + @"\)";
+        private const string Pattern = FunctionSeparator + FunctionName
+            + OptionalWhitespace + @"\(" + OptionalWhitespace 
+            + CaptureGroup + OptionalWhitespace + @"\)";
 
         public static void RunParsing(string startDirectory = null, string outputPath = null)
         {
@@ -28,18 +27,15 @@ namespace BigT
             if (File.Exists(filePath))
                 Big.LoadTranslations(filePath);
 
-            Regex matchPattern = new Regex(pattern, RegexOptions.Singleline);
-            var translationsFromParsing = ReadStringsRecursively(directory, identifier, matchPattern);
+            var matchPattern = new Regex(Pattern, RegexOptions.Singleline);
+            var translationsFromParsing = ReadStringsRecursively(directory, Identifier, matchPattern);
             Big.UpdateTranslations(translationsFromParsing);
             Big.SaveTranslations(filePath);            
         }
 
         private static string GetDirectory(string startDirectory)
         {
-            if (startDirectory != null)
-                return startDirectory;
-
-            return Directory.GetCurrentDirectory();
+            return startDirectory ?? Directory.GetCurrentDirectory();
         }
 
         private static string GetFilePath(string directory, string outputPath)
@@ -47,29 +43,28 @@ namespace BigT
             if (outputPath != null)
                 return outputPath;
 
-            return Path.Combine(directory, outputFile);
+            return Path.Combine(directory, OutputFile);
         }
 
-        private static List<String> ReadStringsRecursively(string filePath, string fileIdentifier, Regex matchPattern)
+        private static IEnumerable<string> ReadStringsRecursively(string filePath, string fileIdentifier, Regex matchPattern)
         {  
-            string[] files = Directory.GetFiles(filePath, fileIdentifier);
+            var files = Directory.GetFiles(filePath, fileIdentifier);
             var translations = GetStringsFromFiles(files, matchPattern);
             var subDirectories = Directory.GetDirectories(filePath);
             foreach (var directory in subDirectories)
             {
                 translations.AddRange(ReadStringsRecursively(directory, fileIdentifier, matchPattern));
             }
-
             return translations;
         }
 
-        private static List<String> GetStringsFromFiles(string[] files, Regex matchPattern)
+        private static List<string> GetStringsFromFiles(IEnumerable<string> files, Regex matchPattern)
         {
-            var translations = new List<String>();
+            var translations = new List<string>();
             foreach (var file in files)
             {
-                string fileContent = File.ReadAllText(file);
-                Match m = matchPattern.Match(fileContent);
+                var fileContent = File.ReadAllText(file);
+                var m = matchPattern.Match(fileContent);
                 while (m.Success)
                 {
                     if (m.Groups[1].Length == 0)
@@ -80,12 +75,10 @@ namespace BigT
                     else
                     {
                         translations.Add(m.Groups[2].ToString().Replace(@"""""", @""""));
-                    }
-                    
+                    }                    
                     m = m.NextMatch();
                 }
             }
-
             return translations;
         }
     }
