@@ -3,7 +3,7 @@
 
 BigT (Basic internalization/globalization Translations) is an easy to use localization library inpired by QT's tr() translation function.
 
-Translations are stored in a CSV file.
+Translations are stored in a CSV file so translators can work, for example, with Excel or Google Sheets.
 
 NuGet package available in [MyGet](https://www.myget.org/gallery/bigt).
 
