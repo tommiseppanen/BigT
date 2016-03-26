@@ -18,7 +18,7 @@ Install-Package BigT
 ```
 
 #Usage examples
-In addition to the following examples, check also the [BigT Localization Example](https://github.com/tommiseppanen/BigT-Localization-Example)
+In addition to the following examples, check also the source code of [BigT Localization Example](https://github.com/tommiseppanen/BigT-Localization-Example).
 
 Basic string:
 ```
