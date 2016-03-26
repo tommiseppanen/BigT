@@ -38,14 +38,16 @@ using static BigT.Big;
 var text = T("This is a string to be translated!");
 ```
 
-Use BigT.Parser.RunParsing() to update translation CSV with new strings. For example:
+Use BigT.Parser.RunParsing() to update translation CSV with new strings and BigT's LoadTranslations() to read the translations into memory. For example:
 ```
+using static BigT.Big;
+
 static void Main(string[] args)
 {
 #if DEBUG
 	BigT.Parser.RunParsing("..\\..");
 #endif
-
+	LoadTranslations();
 //...
 
 }
