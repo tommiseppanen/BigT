@@ -48,7 +48,8 @@ static void Main(string[] args)
 	BigT.Parser.RunParsing("..\\..");
 #endif
 	LoadTranslations();
-//...
-
+	
+	//...
+	
 }
 ```
