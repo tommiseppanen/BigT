@@ -7,7 +7,19 @@ Translations are stored in a CSV file so translators can work, for example, with
 
 NuGet package available in [MyGet](https://www.myget.org/gallery/bigt).
 
+#Installation in Visual Studio
+Add the following URL to Package Sources:
+```
+https://www.myget.org/F/bigt/api/v3/index.json
+```
+Install BigT from Package Manager Console by running the following command:
+```
+Install-Package BigT
+```
+
 #Usage examples
+In addition to the following examples, check also the [BigT Localization Example](https://github.com/tommiseppanen/BigT-Localization-Example)
+
 Basic string:
 ```
 using BigT;
