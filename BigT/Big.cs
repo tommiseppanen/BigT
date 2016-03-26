@@ -30,7 +30,7 @@ namespace BigT
             _activeLanguage = language;
         }
 
-        public static void LoadTranslations(string path)
+        public static void LoadTranslations(string path = Parser.DefaultOutputFile)
         {
             using (var stream = File.OpenRead(path))
             using (var reader = new StreamReader(stream))

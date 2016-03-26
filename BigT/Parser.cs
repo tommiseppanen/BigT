@@ -6,8 +6,8 @@ namespace BigT
 {
     public class Parser
     {
+        public const string DefaultOutputFile = "translations.csv";
         private const string Identifier = "*.cs";
-        private const string OutputFile = "translations.csv";
 
         //Regex pattern parts
         private const string FunctionSeparator = @"[\s,\(\{]";
@@ -40,7 +40,7 @@ namespace BigT
 
         private static string GetFilePath(string directory, string outputPath)
         {
-            return outputPath ?? Path.Combine(directory, OutputFile);
+            return outputPath ?? Path.Combine(directory, DefaultOutputFile);
         }
 
         private static IEnumerable<string> ReadStringsRecursively(string filePath, string fileIdentifier, Regex matchPattern)
